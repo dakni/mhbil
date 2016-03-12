@@ -1,5 +1,6 @@
 # mhbil
 Code repository of the book by Oliver Nakoinz and Daniel Knitter "Modelling Human Behaviour in Landscapes -- Basic concepts and modelling elements" published by Springer in 2016
+http://www.springer.com/de/book/9783319295367
 
 ## What will you find here?
 In the next weeks we are going to provide you with
@@ -14,4 +15,3 @@ We decided to use git in order
 ## anything more?
 If you have any question, do not hesitate to contact us. 
 
-http://www.springer.com/de/book/9783319295367
