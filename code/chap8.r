@@ -20,7 +20,7 @@
 ##             boundary analysis
 ## Licence data: -
 ## Licence Script: GPL 
-##    (http://www.gnu.org/licenses/gpl-3.0.html)
+##    (http://www.gnu.org/licenses/gpl-3.0.html)     
 ############################################## #
 
 # 0. Preparation ===============================
