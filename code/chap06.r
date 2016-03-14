@@ -30,9 +30,18 @@
 ## R code for Chapter 6 "Location and Characterisation"
 ## ==================================================
 
-setwd("/media/daniel/homebay/Publications/1_active/Book_2015_Nakoinz-Knitter_Modeling_Landscape_Archaeology/Predictive_Model_chapter/")
+
+## Prerequisites
+## ==================================================
+
+setwd("PATH_TO_YOUR_WORKING_DIRECTORY")
 
 ## define variables
+## --------------------------------------------------
+## We presume that you store the data according to
+## their type, i.e. tables are in a "1data" folder
+## and geodata are in a "2geodata" folder
+## later we will store results in a folder "3results"
 file_meg <- "1data/meg.dw2.csv"
 file_tum <- "1data/tum.dw2.csv"
 file_vil <- "1data/villages.xls"
@@ -76,10 +85,20 @@ proj4string(spdf_tum) <- CRS(as.character(crs1))
 proj4string(sgdf_srtm) <- CRS(as.character(crs1))
 
 ## reproject villages.xls --> requires proj4string
-df_vil_coord <- proj4::project(cbind(spdf_vil_wgs84@coords[,1], spdf_vil_wgs84@coords[,2]), crs1) # requires proj4
-df_vil_k <- cbind(x=df_vil_coord[,1]+3500000,y=df_vil_coord[,2]) # +3500000 due to GK zoning
-df_vil <- data.frame(id=df_vil_wgs84[,1], village=as.character(df_vil_wgs84[,2]), AD=df_vil_wgs84[,3])
-spdf_vil <- SpatialPointsDataFrame(df_vil_k, as.data.frame(df_vil), proj4string=CRS(as.character(crs1)))
+df_vil_coord <- proj4::project(cbind(spdf_vil_wgs84@coords[,1],
+                                     spdf_vil_wgs84@coords[,2]),
+                               crs1)
+
+df_vil_k <- cbind(x=df_vil_coord[,1]+3500000,
+                  y=df_vil_coord[,2]) # +3500000 due to GK zoning
+
+df_vil <- data.frame(id=df_vil_wgs84[,1],
+                     village=as.character(df_vil_wgs84[,2]),
+                     AD=df_vil_wgs84[,3])
+
+spdf_vil <- SpatialPointsDataFrame(df_vil_k,
+                                   as.data.frame(df_vil),
+                                   proj4string=CRS(as.character(crs1)))
 
 
 
@@ -95,7 +114,8 @@ head(spdf_meg@coords)
 head(spdf_vil@coords)
 sgdf_srtm@bbox
 
-### HERE STARTS THE TEXT
+## From this point on we are back in the book
+## ==================================================
 sgdf_srtm <- readGDAL(sgdf_srtm) # requires rgdal
 names(sgdf_srtm@data) <- "srtm" # change the name from "band1" to "srtm"
 is.projected(sgdf_srtm)
@@ -108,7 +128,7 @@ srtm <- raster(sgdf_srtm)
 srtm
 summary(srtm)
 
-pdf("../ssmod_v06/figures/ch6_srtm.pdf", height=8, width=12, bg = "white")
+pdf("./3results/ch6_srtm.pdf", height=8, width=12, bg = "white")
 plot(srtm,
      col = gray.colors(n = 25, start = 0.1, end = .9),
      legend.lab="Altitude (m)",
@@ -137,9 +157,23 @@ t.test(x=spdf_meg@data$srtm, y=spdf_vil@data$srtm)
 
 
 library("KernSmooth")
-ks_meg <- bkde(spdf_meg@data$srtm, kernel="normal",  bandwidth=3, gridsize=201, range.x = c(summary(srtm)[1],summary(srtm)[5]))
-ks_tum <- bkde(spdf_tum@data$srtm, kernel="normal",  bandwidth=3, gridsize=201, range.x = c(summary(srtm)[1],summary(srtm)[5]))
-ks_vil2 <- bkde(spdf_vil@data$srtm, kernel="normal",  bandwidth=3, gridsize=201, range.x = c(summary(srtm)[1],summary(srtm)[5]))
+ks_meg <- bkde(spdf_meg@data$srtm,
+               kernel="normal",
+               bandwidth=3,
+               gridsize=201,
+               range.x = c(summary(srtm)[1],summary(srtm)[5]))
+
+ks_tum <- bkde(spdf_tum@data$srtm,
+               kernel="normal",
+               bandwidth=3,
+               gridsize=201,
+               range.x = c(summary(srtm)[1],summary(srtm)[5]))
+
+ks_vil2 <- bkde(spdf_vil@data$srtm,
+                kernel="normal",
+                bandwidth=3,
+                gridsize=201,
+                range.x = c(summary(srtm)[1],summary(srtm)[5]))
 
 srtm_char <- data.frame(ks_meg,ks_tum$y,ks_vil2$y)
 colnames(srtm_char) <- c("altitude","meg","tum","vil")
@@ -151,7 +185,7 @@ tail(srtm_char2,3)
 
 library(ggplot2)
 
-pdf("../ssmod_v06/figures/ch6_srtm_char.pdf", height=4, width=6, bg = "white")
+pdf("./3results/ch6_srtm_char.pdf", height=4, width=6, bg = "white")
 srtm_char_plot <- ggplot(srtm_char2, aes(x=altitude, y=value)) +
     geom_line(aes(linetype = variable)) +
     labs(x="Altitude (m)",y="density",legend="") +
@@ -189,9 +223,13 @@ names(ter.par)[2] <- "tpi_5"
 
 summary(ter.par)
 
-srtm.shade <- hillShade(slope = ter.par$slope, aspect = ter.par$aspect,angle = 15,direction = 200,normalize = TRUE)
+srtm.shade <- hillShade(slope = ter.par$slope,
+                        aspect = ter.par$aspect,
+                        angle = 15,
+                        direction = 200,
+                        normalize = TRUE)
 
-pdf("../ssmod_v06/figures/ch6_terr_par.pdf", height=10, width=12, bg = "white")
+pdf("./3results/ch6_terr_par.pdf", height=10, width=12, bg = "white")
 par(mfrow = c(2,2))
 plot(ter.par, 1, col = grey(c(8:0/8)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
 plot(srtm.shade, col = grey(0:200/200,alpha = .3), legend = FALSE,add=TRUE)
@@ -221,18 +259,44 @@ tp_tum <- extract(x = ter.par, y = spdf_tum, buffer = 200, fun = median,df=TRUE)
 tp_vil <- extract(x = ter.par, y = spdf_vil, buffer = 200, fun = median,df=TRUE)[,-1]
 
 library(foreach)
-ks_tp_meg <- foreach (i=1:4) %do% lapply(X = tp_meg[i], FUN = function(x){bkde(x[i], kernel="normal",  bandwidth=3, gridsize=201, range.x = c(summary(ter.par[[i]])[1],summary(ter.par[[i]])[5]))})
-ks_tp_tum <- foreach (i=1:4) %do% lapply(X = tp_tum[i], FUN = function(x){bkde(x[i], kernel="normal",  bandwidth=3, gridsize=201, range.x = c(summary(ter.par[[i]])[1],summary(ter.par[[i]])[5]))})
-ks_tp_vil <- foreach (i=1:4) %do% lapply(X = tp_vil[i], FUN = function(x){bkde(x[i], kernel="normal",  bandwidth=3, gridsize=201, range.x = c(summary(ter.par[[i]])[1],summary(ter.par[[i]])[5]))})
+ks_tp_meg <- foreach (i=1:4) %do% lapply(X = tp_meg[i],
+                                         FUN = function(x){bkde(x[i],
+                                                                kernel="normal",
+                                                                bandwidth=3,
+                                                                gridsize=201,
+                                                                range.x = c(summary(ter.par[[i]])[1],summary(ter.par[[i]])[5])
+                                                                )
+                                         })
 
-ter_char_tpi15 <- data.frame(ks_tp_meg[[1]][[1]],ks_tp_tum[[1]][[1]]$y,ks_tp_vil[[1]][[1]]$y)
+ks_tp_tum <- foreach (i=1:4) %do% lapply(X = tp_tum[i],
+                                         FUN = function(x){bkde(x[i],
+                                                                kernel="normal",
+                                                                bandwidth=3,
+                                                                gridsize=201,
+                                                                range.x = c(summary(ter.par[[i]])[1],summary(ter.par[[i]])[5])
+                                                                )
+                                         })
+
+ks_tp_vil <- foreach (i=1:4) %do% lapply(X = tp_vil[i],
+                                         FUN = function(x){bkde(x[i],
+                                                                kernel="normal",
+                                                                bandwidth=3,
+                                                                gridsize=201,
+                                                                range.x = c(summary(ter.par[[i]])[1],summary(ter.par[[i]])[5])
+                                                                )
+                                         })
+
+ter_char_tpi15 <- data.frame(ks_tp_meg[[1]][[1]],
+                             ks_tp_tum[[1]][[1]]$y,
+                             ks_tp_vil[[1]][[1]]$y)
+
 colnames(ter_char_tpi15) <- c("tpi_15","meg","tum","vil")
 
 library(reshape)
 ter_char_tpi15_2 <- melt(ter_char_tpi15, id.vars = "tpi_15")
 
 library(ggplot2)
-pdf("../ssmod_v06/figures/ch6_ter_char_tpi15.pdf", height=4, width=6, bg = "white")
+pdf("./3results/ch6_ter_char_tpi15.pdf", height=4, width=6, bg = "white")
 ter_char_tpi15_plot <- ggplot(ter_char_tpi15_2, aes(x=tpi_15, y=value)) +
     geom_line(aes(linetype = variable, color = variable)) +
     labs(x="TPI",y="density",legend="") +
@@ -247,14 +311,17 @@ ter_char_tpi15_plot <- ggplot(ter_char_tpi15_2, aes(x=tpi_15, y=value)) +
 ter_char_tpi15_plot
 dev.off()
 
-ter_char_slope <- data.frame(ks_tp_meg[[3]][[1]],ks_tp_tum[[3]][[1]]$y,ks_tp_vil[[3]][[1]]$y)
+ter_char_slope <- data.frame(ks_tp_meg[[3]][[1]],
+                             ks_tp_tum[[3]][[1]]$y,
+                             ks_tp_vil[[3]][[1]]$y)
+
 colnames(ter_char_slope) <- c("slope","meg","tum","vil")
 
 library(reshape)
 ter_char_slope_2 <- melt(ter_char_slope, id.vars = "slope")
 
 library(ggplot2)
-pdf("../ssmod_v06/figures/ch6_ter_char_slope.pdf", height=4, width=6, bg = "white")
+pdf("./3results/ch6_ter_char_slope.pdf", height=4, width=6, bg = "white")
 ter_char_slope_plot <- ggplot(ter_char_slope_2, aes(x=slope, y=value)) +
     geom_line(aes(linetype = variable, color = variable)) +
     labs(x="Slope (radians)",y="density",legend="") +
@@ -333,7 +400,7 @@ ter.par2$aspect <- reclassify(x = ter.par$aspect,rcl = rcl.as)
 
 ba <- overlay(ter.par2, fun=function(w,x,y,z){return(w+x+y+z)}, unstack = TRUE)
 
-pdf("../ssmod_v06/figures/ch6_pm_ba.pdf", height=4, width=6, bg = "white")
+pdf("./3results/ch6_pm_ba.pdf", height=4, width=6, bg = "white")
 plot(ba,col = grey(c(7:3/8)),legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
 points(spdf_meg[rownames(testSet),],pch = 19, cex = .3)
 dev.off()
@@ -360,7 +427,7 @@ rcl.wba <- c(-Inf, quantile(wba)[1], 0,
 rcl.wba <- matrix(rcl.wba, ncol = 3, byrow = TRUE)
 wba.rc <- reclassify(x = wba, rcl = rcl.wba)
 
-pdf("../ssmod_v06/figures/ch6_pm_wba.pdf", height=4, width=6, bg = "white")
+pdf("./3results/ch6_pm_wba.pdf", height=4, width=6, bg = "white")
 plot(wba.rc,col = grey(c(7:3/8)),legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
 points(spdf_meg[rownames(testSet),],pch = 19, cex = .3)
 dev.off()
@@ -413,7 +480,9 @@ set.seed(123)
 
 ## at random locations [n = amount of megatlihs], i.e. absence data
 ## first create random points [seed already defined -> for reproducability]
-rand_points <- randomPoints(mask = srtm, p = spdf_meg, n = length(spdf_meg)) # requires dismo
+rand_points <- randomPoints(mask = srtm,
+                            p = spdf_meg,
+                            n = length(spdf_meg)) # requires dismo
 ## extract data
 rand_points <- extract(x = ter.par, y = rand_points, buffer = 200, fun = median,df=TRUE)[,-1]
 
@@ -442,13 +511,13 @@ ge1 <- evaluate(p = tp_meg, a = rand_points, model = glm1)
 ge2 <- evaluate(p = tp_meg, a = rand_points, model = glm2)
 
 tr1 <- threshold(ge1, "spec_sens")
-pdf("../ssmod_v06/figures/ch6_pm_lr_1.pdf", height=4, width=6, bg = "white")
+pdf("./3results/ch6_pm_lr_1.pdf", height=4, width=6, bg = "white")
 plot(pg1 > tr1, main="glm1 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
 points(spdf_meg,pch=19,cex=.3)
 dev.off()
 
 tr2 <- threshold(ge2, "spec_sens")
-pdf("../ssmod_v06/figures/ch6_pm_lr_2.pdf", height=4, width=6, bg = "white")
+pdf("./3results/ch6_pm_lr_2.pdf", height=4, width=6, bg = "white")
 plot(pg2 > tr2, main="glm2 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
 points(spdf_meg,pch=19,cex=.3)
 dev.off()
