@@ -3,13 +3,13 @@
 ##                  chapter 10
 ## =========================================== =
 ## Project: Modelling Human Behaviour in
-##          Landscapes - Basic concepts and 
+##          Landscapes - Basic concepts and   
 ##          modelling elements
 ##          Springer Series:
 ##          Quantitative Archaeology and
 ##          Archaeological modelling
 ## Authors: Oliver Nakoinz & Daniel Knitter
-## Version: 06
+## Version: 060
 ## Date of last changes: 08.09.2015
 ## Data: Megaliths, Bronze Age Barrows and Medieval villages
 ## Author of data: gshdl
