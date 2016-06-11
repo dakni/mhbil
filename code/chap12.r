@@ -14,7 +14,9 @@
 ## Data: Megaliths, Bronze Age Barrows and Medieval villages
 ## Author of data: gshdl
 ## Purpose: didactic
-## Content: 1. xxxxx
+## Content: 10. preparation, 1. random numbers, 2. differential 
+##          equations, 3. point patterns, 4. cellular automaton, 
+##          5. ABM
 ## Description: applies some basic simulation techniques
 ## Licence data: -
 ## Licence Script: GPL 
@@ -198,19 +200,7 @@ pdf("6pictures/c12_ppsim.pdf", height=4, width=6, bg = "white")
     points(ppsim, pch=16)
 dev.off() 
 
-
-
-
-
-
-
-
-# 3.  Diffusion ===========================
-
-
-
-
-# 4.  Cellular and ABM ===========================
+# 4.  Cellular automata ===========================
 library(sp)
 gt = GridTopology(cellcentre.offset=c(x1,y1),cellsize=c(2500,2500),cells=c(100, 64))
 gt = SpatialGrid(gt, proj4string=CRS(as.character(crs1)))

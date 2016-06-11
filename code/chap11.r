@@ -1,6 +1,6 @@
 t############################################## #
 ## R-Script QAAM 1, Modelling ... Landscapes
-##                  chapter 12
+##                  chapter 11
 ## =========================================== =
 ## Project: Modelling Human Behaviour in
 ##          Landscapes - Basic concepts and 
@@ -14,8 +14,8 @@ t############################################## #
 ## Data: Megaliths, Bronze Age Barrows and Medieval villages
 ## Author of data: gshdl, srtm
 ## Purpose: didactic
-## Content: 1. xxxxx
-## Description: perception
+## Content: 0. preparation, 1. intro - coordinates, 2. visibility, 3. fuzzy landscapes, 4. cognitive maps
+## Description: pplies some basic techniques for analysing and modelling landscape perception
 ## Licence data: -
 ## Licence Script: GPL 
 ##    (http://www.gnu.org/licenses/gpl-3.0.html)
