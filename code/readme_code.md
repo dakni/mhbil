@@ -1,3 +1,0 @@
-# at some point...
-
-...you will find our code here---neatly organized according to the chapters
