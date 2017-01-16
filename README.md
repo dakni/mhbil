@@ -11,11 +11,13 @@ You can get the book here:
 </p>
 
 ## What will you find here?
+
 - the [code](code) of the different chapters
 - the [data](data) used within the book
 
 ## Why do we use git to publish the material?
 We decided to use git in order
+
 - to track the changes we will make in the code [there is always a "better" way to accomplish R-related tasks]
 - to encourage you to download, use, adapt, change and share your code with us and the rest of the community.
 
