@@ -1,11 +1,17 @@
 # mhbil
 Code repository of the book by Oliver Nakoinz and Daniel Knitter "Modelling Human Behaviour in Landscapes -- Basic concepts and modelling elements" published by Springer in 2016
-http://www.springer.com/de/book/9783319295367
+
+<p align="center">
+  <img src="https://images.springer.com/sgw/books/medium/9783319295367.jpg" width="150"/>
+</p>
+
+You can get the book here:
+- [at Springer](http://www.springer.com/de/book/9783319295367)
+- [Worldcat link](http://www.worldcat.org/oclc/933567741)
 
 ## What will you find here?
-In the next weeks we are going to provide you with
-- the dataset used within the book
-- the code of the different chapters
+- the [code](code) of the different chapters
+- the [data](data) used within the book
 
 ## Why do we use git to publish the material?
 We decided to use git in order
