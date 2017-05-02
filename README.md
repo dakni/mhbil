@@ -12,8 +12,8 @@ You can get the book here:
 
 ## What will you find here?
 
-- the [code](code) of the different chapters
-- the [data](data) used within the book
+- the [code](https://github.com/dakni/mhbil/tree/master/code) of the different chapters
+- the [data](https://github.com/dakni/mhbil/tree/master/data) used within the book
 
 ## Why do we use git to publish the material?
 We decided to use git in order
