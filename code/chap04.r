@@ -25,12 +25,28 @@
 # pdf export einbauen
 #
 # 0. Preparation ===============================
-#  working direktory
-wd <- "~/modproj_qaam"
-wd <- "/home/fon/daten/analyse/modproj_qaam"
-setwd(wd)
+#  load data
+df_vil <- read.table(
+    "data/villages.csv",
+    header = TRUE, 
+    sep = ",",
+    stringsAsFactors = TRUE
+)
 
-load("4ws/ws03.rws")
+meg <- read.table(
+    "data/meg_dw.csv",
+    header = TRUE, 
+    sep = ";",
+    stringsAsFactors = TRUE
+)
+
+library(sp)
+file_srtm   <- "data/dw_gk3_50_ag.asc"
+sgdf_srtm <- read.asciigrid(file_srtm) 
+
+library(raster)
+crs1 <- "+init=epsg:31467"
+proj4string(sgdf_srtm) <- CRS(as.character(crs1)) 
 
 # 1. one dimension ===============================
 vil_fd <- df_vil[,3]
@@ -45,7 +61,7 @@ for (i in 1:4) {higher <- which(df_vil[,3] > cb[i])
 years <- c("1200-1250","1250-1300","1300-1350", "1350-1400")
 data.frame(years,count)
 
-pdf("6pictures/c4_emVil1.pdf", height=4, width=6, bg = "white") 
+pdf("pictures/c4_emVil1.pdf", height=4, width=6, bg = "white") 
     hist(x = df_vil[,3], breaks = 6, col = "gray", border = "white", xlab = "Time A.D.", main = "Histogram of village foundations in different periods")
 dev.off() 
 
@@ -69,6 +85,15 @@ acf(ts_vil, lag.max = 100, main = "")
 
 # 2. two dimensions ===============================
 library(spatstat)
+
+ppp_meg <- ppp(
+    x = meg$x, y = meg$y,
+    window = owin(
+        xrange = range(meg[,2]),
+        yrange = range(meg[,3])
+    )
+)
+
 count <- ppp_meg$n
 dx <- (ppp_meg$window$xrange[2] -  ppp_meg$window$xrange[1]) / 1000
 dy <- (ppp_meg$window$yrange[2] -  ppp_meg$window$yrange[1]) / 1000
@@ -94,7 +119,7 @@ z  <- cbind(1:(columns*rows))
 df <- data.frame(z)
 
 gt  <- GridTopology(cellcentre.offset=c(xmin,ymin), cellsize=c(rw,rw), cells.dim=c(columns,rows))
-sgdf <- SpatialGridDataFrame(gt, df, proj4string = CRS(as.character(crs1)))
+sgdf <- SpatialGridDataFrame(gt, df, proj4string = CRS(crs1))
 
 for (i in seq(along=coordinates(gt)[,1])){
     x <- coordinates(gt)[i,1] - rw/2
@@ -143,6 +168,14 @@ plot(raster(dens_r), col = gray.colors(25, start = 0.97, end = 0.4))
 contour(dens_r, add=T)    
 points(ppp_meg$x, ppp_meg$y, pch=20)
 
+
+
+spdf_meg <- SpatialPointsDataFrame(
+    coords = meg[,2:3],
+    data = meg,
+    proj4string = CRS(crs1)
+)
+
 rw <- 1000
 fs   <- cbind(x=spdf_meg@coords[,1], y=spdf_meg@coords[,2])
 rows <- round((bbox(spdf_meg)[2,2]-bbox(spdf_meg)[2,1])/rw, 0) + 2
@@ -156,7 +189,10 @@ library(tripack)
 fsv   <- voronoi.mosaic(spdf_meg$x, spdf_meg$y, duplicate = 'remove') 
 rad   <- fsv$radius
 fsvsp <- SpatialPointsDataFrame(cbind(fsv$x, fsv$y), as.data.frame(rad), proj4string= CRS(as.character(crs1)))  
-fspv  <- ppp(fsvsp@coords[,1], fsvsp@coords[,2], window=win) 
+fspv  <- ppp(fsvsp@coords[,1], fsvsp@coords[,2], window = owin(
+    xrange = range(fsvsp@coords[,1]),
+    yrange = range(fsvsp@coords[,2])
+)) 
 fs_vd <- cbind(fspv$x,fspv$y,nncross(fspv,ppp_meg)$dist)            
 fs_vd_spdf <- SpatialPointsDataFrame(cbind(fs_vd[,1],fs_vd[,2]), as.data.frame(fs_vd[,3]), proj4string=CRS(as.character(crs1)))
 
@@ -174,7 +210,7 @@ points(ppp_meg$x, ppp_meg$y, pch=16, cex=0.4)
 diff6_5   <- dens_r5
 diff6_5$v <- dens_r6$v - dens_r5$v
 
-save.image("4ws/ws04.rws")
+save.image("ws/ws04.rws")
 
 
 
