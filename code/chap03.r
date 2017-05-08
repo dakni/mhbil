@@ -23,26 +23,21 @@
 ############################################## #
 
 # 0. Preparation ===============================
-#  working direktory
-wd <- "~/modproj_qaam"
-wd <- "/home/fon/daten/analyse/modproj_qaam"
-setwd(wd)
 
 # 2.3. R-Script ===============================
 
 # the lines with basic function will not appear in this script 
 
-file_meg    <- "1data/meg_dw.csv" 
-file_tum    <- "1data/tum_dw.csv" 
-file_coast1 <- "2geodata/coast_gk3.shp" 
+file_meg    <- "data/meg_dw.csv" 
+file_tum    <- "data/tum_dw.csv" 
 file_coast  <- "coast_gk3"  
-file_srtm   <- "2geodata/dw_gk3_50_ag.asc"
-file_vil    <- "1data/villages.xls" 
+file_srtm   <- "data/dw_gk3_50_ag.asc"
+file_vil    <- "data/villages.xls" 
 
 crs1 <- "+proj=tmerc +lat_0=0 +lon_0=9 +k=1 +x_0=3500000 +y_0=0 +ellps=bessel +towgs84=598.1,73.7,418.2,0.202,0.045,-2.455,6.7 +units=m +no_defs"
 crs2 <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
-install.packages('sp') 
+#install.packages('sp') 
 library(sp)      
 library(proj4)           
 library(rgdal)         
@@ -58,8 +53,7 @@ spdf_tum <- read.table(file_tum, sep=';', header=TRUE)
 coordinates(spdf_meg)=~x+y  
 coordinates(spdf_tum)=~x+y  
 
-avs <- paste(wd,"/2geodata",sep="")
-coast <- readOGR(avs, p4s=NULL, file_coast) 
+coast <- readOGR("data", p4s=NULL, file_coast) 
 
 df_vil_wgs84 <- read.xls(file_vil, 1)
 spdf_vil_wgs84 <- df_vil_wgs84
@@ -113,7 +107,7 @@ top.colors = colorRampPalette(c("#618CB5", "#23B0EE", "#81BB7C", "#E5CE98", "#B8
 # dev.off() 
 
 
-png("6pictures/c03_map.png", height=3.28, width=6, units="in", res=600, bg = "white") 
+png("pictures/c03_map.png", height=3.28, width=6, units="in", res=600, bg = "white") 
     par(mai = c(0, 0, 0, 0.2), mar = c(0, 0, 0, 0.2))
     plot(raster(sgdf_srtm), col = top.colors(25))
     plot(srtm_shade, col=grey(seq(from=0,to=1,by=0.02), alpha=0.60), legend=FALSE, add=TRUE,  cex=0.8)
@@ -129,9 +123,14 @@ png("6pictures/c03_map.png", height=3.28, width=6, units="in", res=600, bg = "wh
 dev.off() 
 
 
-
 library(OpenStreetMap)
-openmap(bbox(sgdf_srtm)[2,2],bbox(sgdf_srtm)[1,1],9,'maprequest')
+map <- openmap(
+    c(43.46886761482925, 119.94873046875),
+    c(33.22949814144951, 133.9892578125),
+    minNumTiles=4,
+    type= "osm"
+)
+plot(map)
 
 
 
@@ -223,11 +222,5 @@ setkey(dt_finds_w_f, id)
 
 
 
-save.image("4ws/ws03.rws")
-
-
-
-
-
-
+save.image("ws/ws03.rws")
 
