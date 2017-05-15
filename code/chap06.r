@@ -42,10 +42,10 @@ setwd("PATH_TO_YOUR_WORKING_DIRECTORY")
 ## their type, i.e. tables are in a "1data" folder
 ## and geodata are in a "2geodata" folder
 ## later we will store results in a folder "3results"
-file_meg <- "1data/meg.dw2.csv"
-file_tum <- "1data/tum.dw2.csv"
-file_vil <- "1data/villages.xls"
-sgdf_srtm <- "2geodata/dw_gk3_50_ag.asc"
+file_meg <- "data/meg.dw2.csv"
+file_tum <- "data/tum.dw2.csv"
+file_vil <- "data/villages.xls"
+sgdf_srtm <- "geodata/dw_gk3_50_ag.asc"
 
 crs1 <- "+proj=tmerc +lat_0=0 +lon_0=9 +k=1+x_0=3500000 +y_0=0 +ellps=WGS84 +units=m +no_defs"
 crs2 <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
