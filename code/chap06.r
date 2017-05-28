@@ -46,6 +46,8 @@ file_tum <- "data/tum_dw.csv"
 file_vil <- "data/villages.xls"
 sgdf_srtm <- "data/dw_gk3_50_ag.asc"
 
+
+
 crs1 <- "+proj=tmerc +lat_0=0 +lon_0=9 +k=1+x_0=3500000 +y_0=0 +ellps=WGS84 +units=m +no_defs"
 crs2 <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
