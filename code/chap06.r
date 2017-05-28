@@ -501,54 +501,56 @@ ge1 <- evaluate(p = tp_meg, a = rand_points, model = glm1)
 ge2 <- evaluate(p = tp_meg, a = rand_points, model = glm2)
 
 tr1 <- threshold(ge1, "spec_sens")
-pdf("./pictures/c6_pm_lr_1.pdf", height=4, width=6, bg = "white")
-    plot(pg1 > tr1, main="glm1 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-    points(spdf_meg,pch=19,cex=.3)
-dev.off()
+# pdf("./pictures/c6_pm_lr_1.pdf", height=4, width=6, bg = "white")
+#     plot(pg1 > tr1, main="glm1 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+#     points(spdf_meg,pch=19,cex=.3)
+# dev.off()
+# 
+# tr2 <- threshold(ge2, "spec_sens")
+# pdf("./pictures/c6_pm_lr_2.pdf", height=4, width=6, bg = "white")
+#     plot(pg2 > tr2, main="glm2 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+#     points(spdf_meg,pch=19,cex=.3)
+# dev.off()
+# 
+# ##### GAIN ####
+# 
+# ## %Area
+# pa.ba <- prop.table(table(ba@data@values))*100
+# pa.wba <- prop.table(table(wba.rc@data@values))*100
+# 
+# ## %sites
+# ps.ba <- prop.table(table(testSet.ba))*100
+# ps.wba <- prop.table(table(testSet.wba.r))*100
+# 
+# ## gain
+# g.ba <- 1-(pa.ba[5]/ps.ba[4])
+# g.wba <- 1-(pa.wba[5]/ps.wba[5])
+# 
+# ## gain model glm1
+# ## percent area positive
+# pa.glm1 <- (100*length(pg1[pg1 > tr1]))/length(pg1[!is.na(pg1)])
+# ## percent sites on positive areas
+# meg.logit <- extract(x = pg1, y = spdf_meg)
+# ps.glm1 <- (100*length(meg.logit[meg.logit > tr1]))/length(meg.logit)
+# ##gain
+# g.glm1 <- 1-pa/ps
+# 
+# ## gain model glm2
+# ## percent area positive
+# pa.glm2 <- (100*length(pg2[pg2 > tr2]))/length(pg2[!is.na(pg2)])
+# ## percent sites on positive areas
+# meg.logit <- extract(x = pg2, y = spdf_meg)
+# ps.glm2 <- (100*length(meg.logit[meg.logit > tr2]))/length(meg.logit)
+# ##gain
+# g.glm2 <- 1-pa/ps
+# 
+# gain <- data.frame(BA=c(pa.ba[5],ps.ba[4],g.ba),
+#                 WBA=c(pa.wba[5],ps.wba[5],g.wba),
+#                 GLM1=c(pa.glm1,ps.glm1,g.glm1),
+#                 GLM2=c(pa.glm2,ps.glm2,g.glm2),
+#                 row.names = c("p_a","p_s","gain")
+#                 )
+# library(knitr)
+# kable(gain, format = "latex")
 
-tr2 <- threshold(ge2, "spec_sens")
-pdf("./pictures/c6_pm_lr_2.pdf", height=4, width=6, bg = "white")
-    plot(pg2 > tr2, main="glm2 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-    points(spdf_meg,pch=19,cex=.3)
-dev.off()
-
-##### GAIN ####
-
-## %Area
-pa.ba <- prop.table(table(ba@data@values))*100
-pa.wba <- prop.table(table(wba.rc@data@values))*100
-
-## %sites
-ps.ba <- prop.table(table(testSet.ba))*100
-ps.wba <- prop.table(table(testSet.wba.r))*100
-
-## gain
-g.ba <- 1-(pa.ba[5]/ps.ba[4])
-g.wba <- 1-(pa.wba[5]/ps.wba[5])
-
-## gain model glm1
-## percent area positive
-pa.glm1 <- (100*length(pg1[pg1 > tr1]))/length(pg1[!is.na(pg1)])
-## percent sites on positive areas
-meg.logit <- extract(x = pg1, y = spdf_meg)
-ps.glm1 <- (100*length(meg.logit[meg.logit > tr1]))/length(meg.logit)
-##gain
-g.glm1 <- 1-pa/ps
-
-## gain model glm2
-## percent area positive
-pa.glm2 <- (100*length(pg2[pg2 > tr2]))/length(pg2[!is.na(pg2)])
-## percent sites on positive areas
-meg.logit <- extract(x = pg2, y = spdf_meg)
-ps.glm2 <- (100*length(meg.logit[meg.logit > tr2]))/length(meg.logit)
-##gain
-g.glm2 <- 1-pa/ps
-
-gain <- data.frame(BA=c(pa.ba[5],ps.ba[4],g.ba),
-                WBA=c(pa.wba[5],ps.wba[5],g.wba),
-                GLM1=c(pa.glm1,ps.glm1,g.glm1),
-                GLM2=c(pa.glm2,ps.glm2,g.glm2),
-                row.names = c("p_a","p_s","gain")
-                )
-library(knitr)
-kable(gain, format = "latex")
+save.image("ws/ws06.rws")
