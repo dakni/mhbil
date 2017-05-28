@@ -34,18 +34,17 @@
 ## Prerequisites
 ## ==================================================
 
-setwd("PATH_TO_YOUR_WORKING_DIRECTORY")
+
 
 ## define variables
 ## --------------------------------------------------
 ## We presume that you store the data according to
-## their type, i.e. tables are in a "1data" folder
-## and geodata are in a "2geodata" folder
-## later we will store results in a folder "3results"
-file_meg <- "1data/meg.dw2.csv"
-file_tum <- "1data/tum.dw2.csv"
-file_vil <- "1data/villages.xls"
-sgdf_srtm <- "2geodata/dw_gk3_50_ag.asc"
+## their type, i.e. tables are in a "data" folder
+## later we will store results in a folder "results"
+file_meg <- "data/meg_dw.csv"
+file_tum <- "data/tum_dw.csv"
+file_vil <- "data/villages.xls"
+sgdf_srtm <- "data/dw_gk3_50_ag.asc"
 
 crs1 <- "+proj=tmerc +lat_0=0 +lon_0=9 +k=1+x_0=3500000 +y_0=0 +ellps=WGS84 +units=m +no_defs"
 crs2 <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
@@ -114,35 +113,26 @@ head(spdf_meg@coords)
 head(spdf_vil@coords)
 sgdf_srtm@bbox
 
-## From this point on we are back in the book
-## ==================================================
-sgdf_srtm <- readGDAL(sgdf_srtm) # requires rgdal
-names(sgdf_srtm@data) <- "srtm" # change the name from "band1" to "srtm"
-is.projected(sgdf_srtm)
-sgdf_srtm@proj4string@projargs <- crs1
-is.projected(sgdf_srtm)
-spdf_meg@proj4string@projargs == sgdf_srtm@proj4string@projargs
-
 ## create raster object from load SRTM
 srtm <- raster(sgdf_srtm)
 srtm
 summary(srtm)
 
-pdf("./3results/ch6_srtm.pdf", height=8, width=12, bg = "white")
-plot(srtm,
-     col = gray.colors(n = 25, start = 0.1, end = .9),
-     legend.lab="Altitude (m)",
-     horizontal = FALSE,
-     legend.width = 1,
-     cex.axis=.9,
-     tcl=-.3,
-     mgp = c(3,.2,0)
-     )
-points(spdf_tum,pch = 19, cex = .8, col = "black",bg="black")
-points(spdf_meg,pch = 22, cex = 1.5, col = "black", bg="white")
-points(spdf_vil,pch = 23, cex = 2.5, col = "black", bg = "white")
-legend("bottomright",legend=c("Bronze Age Barrows","Megaliths","Villages"),pch=c(19,22,23))
-scalebar(d = 5000, divs = 2, below="Meter",type = "bar",xy=c(3573800,6025500),adj = c(.5,-1.3))
+pdf("./pictures/c6_srtm.pdf", height=8, width=12, bg = "white")
+    plot(srtm,
+         col = gray.colors(n = 25, start = 0.1, end = .9),
+         legend.lab="Altitude (m)",
+         horizontal = FALSE,
+         legend.width = 1,
+         cex.axis=.9,
+         tcl=-.3,
+         mgp = c(3,.2,0)
+         )
+    points(spdf_tum,pch = 19, cex = .8, col = "black",bg="black")
+    points(spdf_meg,pch = 22, cex = 1.5, col = "black", bg="white")
+    points(spdf_vil,pch = 23, cex = 2.5, col = "black", bg = "white")
+    legend("bottomright",legend=c("Bronze Age Barrows","Megaliths","Villages"),pch=c(19,22,23))
+    scalebar(d = 5000, divs = 2, below="Meter",type = "bar",xy=c(3573800,6025500),adj = c(.5,-1.3))
 dev.off()
 
 ## extract characteristics from locations
@@ -185,7 +175,7 @@ tail(srtm_char2,3)
 
 library(ggplot2)
 
-pdf("./3results/ch6_srtm_char.pdf", height=4, width=6, bg = "white")
+pdf("./pictures/c6_srtm_char.pdf", height=4, width=6, bg = "white")
 srtm_char_plot <- ggplot(srtm_char2, aes(x=altitude, y=value)) +
     geom_line(aes(linetype = variable)) +
     labs(x="Altitude (m)",y="density",legend="") +
@@ -229,27 +219,27 @@ srtm.shade <- hillShade(slope = ter.par$slope,
                         direction = 200,
                         normalize = TRUE)
 
-pdf("./3results/ch6_terr_par.pdf", height=10, width=12, bg = "white")
-par(mfrow = c(2,2))
-plot(ter.par, 1, col = grey(c(8:0/8)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-plot(srtm.shade, col = grey(0:200/200,alpha = .3), legend = FALSE,add=TRUE)
-points(spdf_tum,pch = 19, cex = .5, col = "black",bg="black")
-points(spdf_meg,pch = 19, cex = .5, col = "black", bg="white")
-points(spdf_vil,pch = 19, cex = .5, col = "black", bg = "white")
-plot(ter.par, 2, col = grey(c(0:4/4)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-plot(srtm.shade, col = grey(0:200/200,alpha = .5), legend = FALSE,add=TRUE)
-points(spdf_tum,pch = 19, cex = .5, col = "black",bg="black")
-points(spdf_meg,pch = 19, cex = .5, col = "black", bg="white")
-points(spdf_vil,pch = 19, cex = .5, col = "black", bg = "white")
-plot(ter.par, 3, col = grey(c(10:0/10)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-plot(srtm.shade, col = grey(0:200/200,alpha = .3), legend = FALSE,add=TRUE)
-points(spdf_tum,pch = 19, cex = .5, col = "black",bg="black")
-points(spdf_meg,pch = 19, cex = .5, col = "black", bg="white")
-points(spdf_vil,pch = 19, cex = .5, col = "black", bg = "white")
-plot(ter.par, 4, col = grey(c(8:0/10)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-points(spdf_tum,pch = 19, cex = .5, col = "black",bg="black")
-points(spdf_meg,pch = 19, cex = .5, col = "black", bg="white")
-points(spdf_vil,pch = 19, cex = .5, col = "black", bg = "white")
+pdf("./pictures/c6_terr_par.pdf", height=10, width=12, bg = "white")
+    par(mfrow = c(2,2))
+    plot(ter.par, 1, col = grey(c(8:0/8)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+    plot(srtm.shade, col = grey(0:200/200,alpha = .3), legend = FALSE,add=TRUE)
+    points(spdf_tum,pch = 19, cex = .5, col = "black",bg="black")
+    points(spdf_meg,pch = 19, cex = .5, col = "black", bg="white")
+    points(spdf_vil,pch = 19, cex = .5, col = "black", bg = "white")
+    plot(ter.par, 2, col = grey(c(0:4/4)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+    plot(srtm.shade, col = grey(0:200/200,alpha = .5), legend = FALSE,add=TRUE)
+    points(spdf_tum,pch = 19, cex = .5, col = "black",bg="black")
+    points(spdf_meg,pch = 19, cex = .5, col = "black", bg="white")
+    points(spdf_vil,pch = 19, cex = .5, col = "black", bg = "white")
+    plot(ter.par, 3, col = grey(c(10:0/10)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+    plot(srtm.shade, col = grey(0:200/200,alpha = .3), legend = FALSE,add=TRUE)
+    points(spdf_tum,pch = 19, cex = .5, col = "black",bg="black")
+    points(spdf_meg,pch = 19, cex = .5, col = "black", bg="white")
+    points(spdf_vil,pch = 19, cex = .5, col = "black", bg = "white")
+    plot(ter.par, 4, col = grey(c(8:0/10)),horizontal = FALSE,legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+    points(spdf_tum,pch = 19, cex = .5, col = "black",bg="black")
+    points(spdf_meg,pch = 19, cex = .5, col = "black", bg="white")
+    points(spdf_vil,pch = 19, cex = .5, col = "black", bg = "white")
 dev.off()
 
 
@@ -296,19 +286,19 @@ library(reshape)
 ter_char_tpi15_2 <- melt(ter_char_tpi15, id.vars = "tpi_15")
 
 library(ggplot2)
-pdf("./3results/ch6_ter_char_tpi15.pdf", height=4, width=6, bg = "white")
-ter_char_tpi15_plot <- ggplot(ter_char_tpi15_2, aes(x=tpi_15, y=value)) +
-    geom_line(aes(linetype = variable, color = variable)) +
-    labs(x="TPI",y="density",legend="") +
-    theme_bw(base_size = 12) +
-    theme(legend.position="bottom",
-          legend.title=element_blank()
-          ) +
-        scale_linetype_manual(values=c("solid", "dashed", "dotted"),
-                              labels = c("Megaliths","Bronze Age Barrows", "Villages")) +
-            scale_color_manual(values=c('#999999','#000000','#000000'),
-                               labels = c("Megaliths","Bronze Age Barrows", "Villages"))
-ter_char_tpi15_plot
+pdf("./pictures/c6_ter_char_tpi15.pdf", height=4, width=6, bg = "white")
+    ter_char_tpi15_plot <- ggplot(ter_char_tpi15_2, aes(x=tpi_15, y=value)) +
+        geom_line(aes(linetype = variable, color = variable)) +
+        labs(x="TPI",y="density",legend="") +
+        theme_bw(base_size = 12) +
+        theme(legend.position="bottom",
+              legend.title=element_blank()
+              ) +
+            scale_linetype_manual(values=c("solid", "dashed", "dotted"),
+                                  labels = c("Megaliths","Bronze Age Barrows", "Villages")) +
+                scale_color_manual(values=c('#999999','#000000','#000000'),
+                                   labels = c("Megaliths","Bronze Age Barrows", "Villages"))
+    ter_char_tpi15_plot
 dev.off()
 
 ter_char_slope <- data.frame(ks_tp_meg[[3]][[1]],
@@ -321,19 +311,19 @@ library(reshape)
 ter_char_slope_2 <- melt(ter_char_slope, id.vars = "slope")
 
 library(ggplot2)
-pdf("./3results/ch6_ter_char_slope.pdf", height=4, width=6, bg = "white")
-ter_char_slope_plot <- ggplot(ter_char_slope_2, aes(x=slope, y=value)) +
-    geom_line(aes(linetype = variable, color = variable)) +
-    labs(x="Slope (radians)",y="density",legend="") +
-    theme_bw(base_size = 12) +
-    theme(legend.position="bottom",
-          legend.title=element_blank()
-          ) +
-        scale_linetype_manual(values=c("solid", "dashed", "dotted"),
-                              labels = c("Megaliths","Bronze Age Barrows", "Villages")) +
-            scale_color_manual(values=c('#999999','#000000','#000000'),
-                               labels = c("Megaliths","Bronze Age Barrows", "Villages"))
-ter_char_slope_plot
+pdf("./pictures/c6_ter_char_slope.pdf", height=4, width=6, bg = "white")
+    ter_char_slope_plot <- ggplot(ter_char_slope_2, aes(x=slope, y=value)) +
+        geom_line(aes(linetype = variable, color = variable)) +
+        labs(x="Slope (radians)",y="density",legend="") +
+        theme_bw(base_size = 12) +
+        theme(legend.position="bottom",
+              legend.title=element_blank()
+              ) +
+            scale_linetype_manual(values=c("solid", "dashed", "dotted"),
+                                  labels = c("Megaliths","Bronze Age Barrows", "Villages")) +
+                scale_color_manual(values=c('#999999','#000000','#000000'),
+                                   labels = c("Megaliths","Bronze Age Barrows", "Villages"))
+    ter_char_slope_plot
 dev.off()
 
 
@@ -400,9 +390,9 @@ ter.par2$aspect <- reclassify(x = ter.par$aspect,rcl = rcl.as)
 
 ba <- overlay(ter.par2, fun=function(w,x,y,z){return(w+x+y+z)}, unstack = TRUE)
 
-pdf("./3results/ch6_pm_ba.pdf", height=4, width=6, bg = "white")
-plot(ba,col = grey(c(7:3/8)),legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-points(spdf_meg[rownames(testSet),],pch = 19, cex = .3)
+pdf("./pictures/c6_pm_ba.pdf", height=4, width=6, bg = "white")
+    plot(ba,col = grey(c(7:3/8)),legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+    points(spdf_meg[rownames(testSet),],pch = 19, cex = .3)
 dev.off()
 
 ## get the predicted values for the testSet
@@ -427,9 +417,9 @@ rcl.wba <- c(-Inf, quantile(wba)[1], 0,
 rcl.wba <- matrix(rcl.wba, ncol = 3, byrow = TRUE)
 wba.rc <- reclassify(x = wba, rcl = rcl.wba)
 
-pdf("./3results/ch6_pm_wba.pdf", height=4, width=6, bg = "white")
-plot(wba.rc,col = grey(c(7:3/8)),legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-points(spdf_meg[rownames(testSet),],pch = 19, cex = .3)
+pdf("./pictures/c6_pm_wba.pdf", height=4, width=6, bg = "white")
+    plot(wba.rc,col = grey(c(7:3/8)),legend.width = 1,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+    points(spdf_meg[rownames(testSet),],pch = 19, cex = .3)
 dev.off()
 
 
@@ -511,15 +501,15 @@ ge1 <- evaluate(p = tp_meg, a = rand_points, model = glm1)
 ge2 <- evaluate(p = tp_meg, a = rand_points, model = glm2)
 
 tr1 <- threshold(ge1, "spec_sens")
-pdf("./3results/ch6_pm_lr_1.pdf", height=4, width=6, bg = "white")
-plot(pg1 > tr1, main="glm1 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-points(spdf_meg,pch=19,cex=.3)
+pdf("./pictures/c6_pm_lr_1.pdf", height=4, width=6, bg = "white")
+    plot(pg1 > tr1, main="glm1 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+    points(spdf_meg,pch=19,cex=.3)
 dev.off()
 
 tr2 <- threshold(ge2, "spec_sens")
-pdf("./3results/ch6_pm_lr_2.pdf", height=4, width=6, bg = "white")
-plot(pg2 > tr2, main="glm2 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
-points(spdf_meg,pch=19,cex=.3)
+pdf("./pictures/c6_pm_lr_2.pdf", height=4, width=6, bg = "white")
+    plot(pg2 > tr2, main="glm2 presence (white) and absence (gray)",col = grey(c(1:2/2)),legend = FALSE,cex.axis=.9,tcl=-.3,mgp = c(3,.2,0))
+    points(spdf_meg,pch=19,cex=.3)
 dev.off()
 
 ##### GAIN ####
