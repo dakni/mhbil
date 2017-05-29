@@ -8,6 +8,9 @@
 *.html
 *.pdf
 
+# results
+pictures/*
+
 # Packages and archives
 *.7z
 *.dmg

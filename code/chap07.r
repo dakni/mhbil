@@ -24,22 +24,23 @@
 ############################################## #
 
 # 0. Preparation ===============================
-#  working direktory
-wd <- "~/modproj_qaam"
-wd <- "/home/fon/daten/analyse/modproj_qaam"
-setwd(wd)
-load("4ws/ws05.rws")
+load("ws/ws05.rws")
+load("ws/ws06.rws")
+
+library(spatstat)
+library(maptools)
+ppp_tum <- as.ppp(spdf_tum)
+ppp_vil <- as.ppp(spdf_vil)
 
 # 1. Point Processes ===============================
-library(spatstat)
+bb   <- bbox(sgdf_srtm) 
 ppspec <- list(cif="strauss",par=list(beta=2,gamma=0.2,r=0.7), w=c(bb[1,1],bb[1,2],bb[2,1],bb[2,2]))
 ppsim <- rmh(model=ppspec,start=list(n.start=200), control=list(nrep=10,nverb=5))
-pdf("6pictures/c7_ppsim.pdf", height=4, width=6, bg = "white") 
+pdf("pictures/c7_ppsim.pdf", height=4, width=6, bg = "white") 
     plot(ppsim)
 dev.off() 
 
 # 2. first order properties ===============================
-library(spatstat)
 sdev <- 2*mean(nndist(ppp_meg)+mean(nndist(ppp_tum)))
 bb   <- bbox(sgdf_srtm)    
 win  <- owin(xrange=c(bb[1,1],bb[1,2]), yrange= c(bb[2,1],bb[2,2]), unitname="m")
@@ -49,65 +50,67 @@ vil_dens <- density(ppp_vil, kernel="gaussian", sigma=sdev, dimyx=c(36,56), w=wi
 
 samppt   <- spsample(sgdf_srtm, 500,  type="random")
 
-library(maptools)
+library(sp)
+library(raster)
 sgdf_meg_dens     <- as.SpatialGridDataFrame.im(meg_dens)
-meg_dens_samp     <- overlay(x=sgdf_meg_dens,  y=samppt)
+projection(sgdf_meg_dens) <- crs1
+meg_dens_samp     <- sp::over(samppt, sgdf_meg_dens)
 sgdf_tum_dens     <- as.SpatialGridDataFrame.im(tum_dens)
-tum_dens_samp     <- overlay(x=sgdf_tum_dens,  y=samppt)
+projection(sgdf_tum_dens) <- crs1
+tum_dens_samp     <- sp::over(samppt, sgdf_tum_dens)
 sgdf_vil_dens     <- as.SpatialGridDataFrame.im(vil_dens)
-vil_dens_samp     <- overlay(x=sgdf_vil_dens,  y=samppt)
-elev_dens_samp     <- overlay(x=sgdf_srtm,  y=samppt)
+projection(sgdf_vil_dens) <- crs1
+vil_dens_samp     <- sp::over(samppt, sgdf_vil_dens)
+elev_dens_samp     <- sp::over(samppt, sgdf_srtm)
 
 dens_samp         <- meg_dens_samp
 names(dens_samp)[names(dens_samp) == 'v'] <- 'meg'
-dens_samp@data    <- cbind(dens_samp@data, tum_dens_samp@data$v)
-names(dens_samp)[names(dens_samp) ==  'tum_dens_samp@data$v'] <- 'tum'
-
-dens_samp@data    <- cbind(dens_samp@data, vil_dens_samp@data$v)
-names(dens_samp)[names(dens_samp) ==  'vil_dens_samp@data$v'] <- 'vil'
-
-dens_samp@data    <- cbind(dens_samp@data, elev_dens_samp@data[,1])
+dens_samp    <- cbind(dens_samp, tum_dens_samp)
+names(dens_samp)[2] <- 'tum'
+dens_samp   <- cbind(dens_samp, vil_dens_samp)
+names(dens_samp)[3] <- 'vil'
+dens_samp   <- cbind(dens_samp, elev_dens_samp)
 names(dens_samp)[4] <- 'elev'
 
-cor.test(dens_samp@data$meg, dens_samp@data$tum,  method="p")
-cor.test(dens_samp@data$vil, dens_samp@data$tum,  method="p")
-cor.test(dens_samp@data$elev, dens_samp@data$tum,  method="p")
+cor.test(dens_samp$meg, dens_samp$tum,  method="p")
+cor.test(dens_samp$vil, dens_samp$tum,  method="p")
+cor.test(dens_samp$elev, dens_samp$tum,  method="p")
 
 
-prcomp(na.omit(dens_samp@data))
+prcomp(na.omit(dens_samp))
 
-meg_elev_samp     <- overlay(x=sgdf_srtm,  y=spdf_meg)
-tum_elev_samp     <- overlay(x=sgdf_srtm,  y=spdf_tum)
-vil_elev_samp     <- overlay(x=sgdf_srtm,  y=spdf_vil)
-ks.test(meg_elev_samp@data[,1], tum_elev_samp@data[,1])
-ks.test(meg_elev_samp@data[,1], vil_elev_samp@data[,1])
-ks.test(tum_elev_samp@data[,1], vil_elev_samp@data[,1])
+meg_elev_samp     <- sp::over(spdf_meg, sgdf_srtm)
+tum_elev_samp     <- sp::over(spdf_tum, sgdf_srtm)
+vil_elev_samp     <- sp::over(spdf_vil, sgdf_srtm)
+ks.test(meg_elev_samp$srtm, tum_elev_samp$srtm)
+ks.test(meg_elev_samp$srtm, vil_elev_samp$srtm)
+ks.test(tum_elev_samp$srtm, vil_elev_samp$srtm)
 
 # 3. second order properties ===============================
 library(spatstat)
 meg_env_g <- envelope(Y = ppp_meg, fun = Gest, nrank = 2, nsim = 99)   
-pdf("6pictures/c7_meg_G.pdf", height=4, width=6, bg = "white") 
+pdf("pictures/c7_meg_G.pdf", height=4, width=6, bg = "white") 
     plot(meg_env_g)
 dev.off() 
 
 meg_env_f <- envelope(Y = ppp_meg, fun = Fest, nrank = 2, nsim = 99)   
-pdf("6pictures/c7_meg_F.pdf", height=4, width=6, bg = "white") 
+pdf("pictures/c7_meg_F.pdf", height=4, width=6, bg = "white") 
     plot(meg_env_f)
 dev.off() 
 
 meg_env_k <- envelope(Y = ppp_meg, fun = Kest, nrank = 2, nsim = 99)   
-pdf("6pictures/c7_meg_K.pdf", height=4, width=6, bg = "white") 
+pdf("pictures/c7_meg_K.pdf", height=4, width=6, bg = "white") 
     plot(meg_env_k)
 dev.off() 
 
 meg_env_L <- envelope(Y = ppp_meg, fun = Lest, nrank = 2, nsim = 99)   
-pdf("6pictures/c7_meg_L.pdf", height=4, width=6, bg = "white") 
+pdf("pictures/c7_meg_L.pdf", height=4, width=6, bg = "white") 
     plot(meg_env_L)
 dev.off() 
 
 meg_env_J <- envelope(Y = ppp_meg, fun = Jest, nrank = 2, nsim = 99)   
-pdf("6pictures/c7_meg_J.pdf", height=4, width=6, bg = "white") 
-plot(meg_env_J)
+pdf("pictures/c7_meg_J.pdf", height=4, width=6, bg = "white") 
+    plot(meg_env_J)
 dev.off() 
 
 
@@ -152,92 +155,92 @@ for (i in seq(along=ras@data$z))  {
     else {ras@data$z[i] <-0}
 }
 
-pdf("6pictures/c7_movingWindowG.pdf", height=5, width=6, bg = "white") 
-image(ras, col = gray.colors(20))    
-points(ppp_tum$x, ppp_tum$y, pch=16, cex=0.4)     
+pdf("pictures/c7_movingWindowG.pdf", height=5, width=6, bg = "white") 
+    image(ras, col = gray.colors(20))    
+    points(ppp_tum$x, ppp_tum$y, pch=16, cex=0.4)     
 dev.off()
 
-writeAsciiGrid(ras,  "c7_movingWindowG.asc",   attr = 1, na.value = -999999, dec=".")                                 
+writeAsciiGrid(ras,  "pictures/c7_movingWindowG.asc",   attr = 1, na.value = -999999, dec=".")                                 
 
-# complicated point patterns
-library(rgdal)
-dsn <- paste(wd,"/1data/",sep="")
-pp1 <- readOGR(dsn, layer='pp1') 
-pp2 <- readOGR(dsn, layer='pp2x') 
-pp3 <- readOGR(dsn, layer='pp3x') 
-pp4 <- readOGR(dsn, layer='pp4x') 
-
-library(spatstat)
-bb = bbox(sgdf_srtm)    
-win <- owin(xrange=c(bb[1,1],bb[1,2]), yrange=c( bb[2,1],bb[2,2]), unitname="m")
-ppp1 <- ppp(pp1@coords[,1], pp1@coords[,2], window=win)
-ppp2 <- ppp(pp2@coords[,1], pp2@coords[,2], window=win)
-ppp3 <- ppp(pp3@coords[,1], pp3@coords[,2], window=win)
-ppp4 <- ppp(pp4@coords[,1], pp4@coords[,2], window=win)
-
-svg("6pictures/c7_ppp1g.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp1, fun = Gest, nrank = 2, nsim = 50) ) 
-dev.off()
-svg("6pictures/c7_ppp1f.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp1, fun = Fest, nrank = 2, nsim = 50) ) 
-dev.off()
-svg("6pictures/c7_ppp1k.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp1, fun = Kest, nrank = 2, nsim = 50) ) 
-dev.off()
-
-svg("6pictures/c7_ppp2g.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp2, fun = Gest, nrank = 2, nsim = 50) ) 
-dev.off()
-svg("6pictures/c7_ppp2f.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp2, fun = Fest, nrank = 2, nsim = 50) ) 
-dev.off()
-svg("6pictures/c7_ppp2k.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp2, fun = Kest, nrank = 2, nsim = 50) ) 
-dev.off()
-
-svg("6pictures/c7_ppp3g.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp3, fun = Gest, nrank = 2, nsim = 50) ) 
-dev.off()
-svg("6pictures/c7_ppp3f.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp3, fun = Fest, nrank = 2, nsim = 50) ) 
-dev.off()
-svg("6pictures/c7_ppp3k.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp3, fun = Kest, nrank = 2, nsim = 50) ) 
-dev.off()
-
-svg("6pictures/c7_ppp4g.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp4, fun = Gest, nrank = 2, nsim = 50) ) 
-dev.off()
-svg("6pictures/c7_ppp4f.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp4, fun = Fest, nrank = 2, nsim = 50) ) 
-dev.off()
-svg("6pictures/c7_ppp4k.svg", height=5, width=6, bg = "white") 
-plot(envelope(Y = ppp4, fun = Kest, nrank = 2, nsim = 50) ) 
-dev.off()
-
-svg("6pictures/c7_ppp1.svg", height=5, width=6, bg = "white") 
-plot(ppp1, pch=16)
-dev.off()
-
-svg("6pictures/c7_ppp2.svg", height=5, width=6, bg = "white") 
-plot(ppp2, pch=16)
-dev.off()
-
-svg("6pictures/c7_ppp3.svg", height=5, width=6, bg = "white") 
-plot(ppp3, pch=16)
-dev.off()
-
-svg("6pictures/c7_ppp4.svg", height=5, width=6, bg = "white") 
-plot(ppp4, pch=16)
-dev.off()
+# # complicated point patterns
+# library(rgdal)
+# dsn <- paste("data/",sep="")
+# pp1 <- readOGR(dsn, layer='pp1') 
+# pp2 <- readOGR(dsn, layer='pp2x') 
+# pp3 <- readOGR(dsn, layer='pp3x') 
+# pp4 <- readOGR(dsn, layer='pp4x') 
+#
+# library(spatstat)
+# bb = bbox(sgdf_srtm)    
+# win <- owin(xrange=c(bb[1,1],bb[1,2]), yrange=c( bb[2,1],bb[2,2]), unitname="m")
+# ppp1 <- ppp(pp1@coords[,1], pp1@coords[,2], window=win)
+# ppp2 <- ppp(pp2@coords[,1], pp2@coords[,2], window=win)
+# ppp3 <- ppp(pp3@coords[,1], pp3@coords[,2], window=win)
+# ppp4 <- ppp(pp4@coords[,1], pp4@coords[,2], window=win)
+# 
+# svg("6pictures/c7_ppp1g.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp1, fun = Gest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# svg("6pictures/c7_ppp1f.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp1, fun = Fest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# svg("6pictures/c7_ppp1k.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp1, fun = Kest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# 
+# svg("6pictures/c7_ppp2g.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp2, fun = Gest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# svg("6pictures/c7_ppp2f.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp2, fun = Fest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# svg("6pictures/c7_ppp2k.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp2, fun = Kest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# 
+# svg("6pictures/c7_ppp3g.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp3, fun = Gest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# svg("6pictures/c7_ppp3f.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp3, fun = Fest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# svg("6pictures/c7_ppp3k.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp3, fun = Kest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# 
+# svg("6pictures/c7_ppp4g.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp4, fun = Gest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# svg("6pictures/c7_ppp4f.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp4, fun = Fest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# svg("6pictures/c7_ppp4k.svg", height=5, width=6, bg = "white") 
+# plot(envelope(Y = ppp4, fun = Kest, nrank = 2, nsim = 50) ) 
+# dev.off()
+# 
+# svg("6pictures/c7_ppp1.svg", height=5, width=6, bg = "white") 
+# plot(ppp1, pch=16)
+# dev.off()
+# 
+# svg("6pictures/c7_ppp2.svg", height=5, width=6, bg = "white") 
+# plot(ppp2, pch=16)
+# dev.off()
+# 
+# svg("6pictures/c7_ppp3.svg", height=5, width=6, bg = "white") 
+# plot(ppp3, pch=16)
+# dev.off()
+# 
+# svg("6pictures/c7_ppp4.svg", height=5, width=6, bg = "white") 
+# plot(ppp4, pch=16)
+# dev.off()
 
 
 # 4. third order properties ===============================
 meg_env_t <- envelope(ppp_meg, fun = Tstat, nrank = 2, nsim = 20)   
-pdf("6pictures/c7_meg_T.pdf", height=4, width=6, bg = "white") 
+pdf("pictures/c7_meg_T.pdf", height=4, width=6, bg = "white") 
     plot(meg_env_t)
 dev.off()
 
-save.image("4ws/ws07.rws")
+save.image("ws/ws07.rws")
 
 
