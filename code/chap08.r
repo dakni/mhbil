@@ -62,19 +62,17 @@ par(mfcol=c(1,2))
 library("classInt")
 nb_meg <- classIntervals(dens_samp@data$meg, style =  "fisher", dataPrecision = NULL)  
 nb_tum <- classIntervals(dens_samp@data$tum, style = "fisher", dataPrecision = NULL)  
-#pdf("6pictures/c8_contour.pdf", height=4, width=6, bg = "white") 
-par(mai = c(0, 0, 0, 0))
+
     contour(sgdf_meg_dens, add=F, method = "edge", levels = nb_meg$brks, drawlabels = F)    
     contour(sgdf_tum_dens, add=T, method = "edge", levels  = nb_tum$brks, drawlabels = F, col="grey")  
     points(ppp_tum$x, ppp_tum$y, pch=17, cex=0.6, col="grey")  
     points(ppp_meg$x, ppp_meg$y, pch=16, cex=0.4)
-#dev.off() 
+
 
 
 ddif <- sgdf_meg_dens
 ddif@data$v <- sgdf_meg_dens$v - sgdf_tum_dens$v
 
-pdf("6pictures/c8_contourdiff.pdf", height=2.5, width=6, bg = "white") 
 par(mfcol=c(1,2), mai = c(0, 0, 0, 0))
     contour(sgdf_meg_dens, add=F, method = "edge", levels = nb_meg$brks, drawlabels = F)    
     contour(sgdf_tum_dens, add=T, method = "edge", levels  = nb_tum$brks, drawlabels = F, col="grey")  
@@ -85,7 +83,6 @@ par(mfcol=c(1,2), mai = c(0, 0, 0, 0))
     points(ppp_tum$x, ppp_tum$y, pch=17, cex=0.6, col="grey")  
     points(ppp_meg$x, ppp_meg$y, pch=16, cex=0.4)
 par(mfcol=c(1,1))
-dev.off() 
 
 
 dens_samp2 <- dens_samp[,1:3]
@@ -95,10 +92,7 @@ dens_samp2@data[,3] <- dens_samp2@data[,3]  / max(dens_samp2@data[,3])
 
 distances <- dist(dens_samp2@data, method = "euclidean")
 hc <- hclust(distances, method="centroid")
-pdf("6pictures/c8_clusterhc.pdf", height=4, width=6, bg = "white") 
-#par(mai = c(0, 0, 0, 0))
     plot(hc, labels=FALSE)
-dev.off() 
 
 library("cluster")
 widthssum <- c(
@@ -110,19 +104,14 @@ widthssum <- c(
     sum(pam(dens_samp2@data, 7, metric = "euclidean")$silinfo$clus.avg.widths),
     sum(pam(dens_samp2@data, 8, metric = "euclidean")$silinfo$clus.avg.widths),
     sum(pam(dens_samp2@data, 9, metric = "euclidean")$silinfo$clus.avg.widths))
-pdf("6pictures/c8_clustersil.pdf", height=4, width=6, bg = "white") 
 plot(widthssum, type ="b", pch=16)
-dev.off() 
 
 dens_samp_clus <- pam(dens_samp2@data, 4, metric = "euclidean")
 dens_samp2@data <- cbind(dens_samp2@data,  dens_samp_clus$clustering)
 names(dens_samp2)[names(dens_samp2) == 'dens_samp_clus$clustering'] <- 'clus'
 
-pdf("6pictures/c8_cluster.pdf", height=4, width=6, bg = "white") 
-par(mai = c(0, 0, 0, 0))
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
     points(dens_samp, pch=dens_samp2@data$clus)
-dev.off() 
 
 clus1 <- c(mean(dens_samp@data[dens_samp_clus$clustering==1, 1]),
             mean(dens_samp@data[dens_samp_clus$clustering==1, 2]),
@@ -184,12 +173,9 @@ for(i in seq(along=dpd$id)) {
     }
 sl <- SpatialLines(LinesList, proj4string = CRS(crs1))
 
-pdf("6pictures/c8_denscluster.pdf", height=4, width=6, bg = "white") 
-par(mai = c(0, 0, 0, 0))
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2) )
     lines(sl)
     points(ppp_meg$x, ppp_meg$y, pch=16, cex=0.6, col="black")  
-dev.off() 
 
 
 
@@ -231,11 +217,8 @@ my2 <- coordinates(ras)[indplan,2]
 mz  <- ras@data[indmax,1]
 maxima <- data.frame(cbind(mx,my,mz))
 
-pdf("6pictures/c8_denscent.pdf", height=4, width=6, bg = "white") 
-par(mai = c(0, 0, 0, 0))
     image(ras, col = gray.colors(20, start = 0.8, end = 0.2))
     points(maxima$mx, maxima$my, pch=16, col="black")  
-dev.off() 
 
 library(deldir)
 try <- deldir(maxima[,1],maxima[,2],plot=TRUE,wl='te')
@@ -265,7 +248,6 @@ for(i in seq(along=(dens_samp@data$cent))) {
      dens_samp@data$cent[i] <- id
      }
 
-pdf("6pictures/c8_voro.pdf", height=2.5, width=6, bg = "white") 
 par(mfcol=c(1,2), mai = c(0, 0, 0, 0))
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
     plot(try, add=TRUE)
@@ -273,9 +255,7 @@ par(mfcol=c(1,2), mai = c(0, 0, 0, 0))
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
     points(dens_samp, pch=dens_samp@data$cent)
 par(mfcol=c(1,1))
-dev.off() 
 
-save.image("4ws/ws08.rws")
 
 
 
