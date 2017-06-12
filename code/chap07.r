@@ -44,9 +44,21 @@ dev.off()
 sdev <- 2*mean(nndist(ppp_meg)+mean(nndist(ppp_tum)))
 bb   <- bbox(sgdf_srtm)    
 win  <- owin(xrange=c(bb[1,1],bb[1,2]), yrange= c(bb[2,1],bb[2,2]), unitname="m")
-meg_dens <- density(ppp_meg, kernel="gaussian", sigma=sdev, dimyx=c(36,56), w=win,  edge=TRUE, at="pixels")
-tum_dens <- density(ppp_tum, kernel="gaussian", sigma=sdev, dimyx=c(36,56), w=win,  edge=TRUE, at="pixels")
-vil_dens <- density(ppp_vil, kernel="gaussian", sigma=sdev, dimyx=c(36,56), w=win,  edge=TRUE, at="pixels")
+
+ppp_meg_big_win <- ppp_meg
+ppp_tum_big_win <- ppp_tum
+ppp_vil_big_win <- ppp_vil
+
+ppp_meg_big_win$window$xrange <- c(bb[1,1],bb[1,2])
+ppp_meg_big_win$window$yrange <- c(bb[2,1],bb[2,2])
+ppp_tum_big_win$window$xrange <- c(bb[1,1],bb[1,2])
+ppp_tum_big_win$window$yrange <- c(bb[2,1],bb[2,2])
+ppp_vil_big_win$window$xrange <- c(bb[1,1],bb[1,2])
+ppp_vil_big_win$window$yrange <- c(bb[2,1],bb[2,2])
+
+meg_dens <- density(ppp_meg_big_win, kernel="gaussian", sigma=sdev, dimyx=c(36,56), w=win,  edge=TRUE, at="pixels")
+tum_dens <- density(ppp_tum_big_win, kernel="gaussian", sigma=sdev, dimyx=c(36,56), w=win,  edge=TRUE, at="pixels")
+vil_dens <- density(ppp_vil_big_win, kernel="gaussian", sigma=sdev, dimyx=c(36,56), w=win,  edge=TRUE, at="pixels")
 
 samppt   <- spsample(sgdf_srtm, 500,  type="random")
 
