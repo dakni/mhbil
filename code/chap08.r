@@ -114,7 +114,11 @@ samppt <- SpatialPointsDataFrame(
 )
 
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
+<<<<<<< HEAD
     points(samppt, pch=samppt@data$clus)
+=======
+    points(dens_samp, pch=dens_samp2$clus)
+>>>>>>> 7502478b0d540aca6bf81c14b7fd4c0d49f1c2d4
 
 clus1 <- c(mean(dens_samp[dens_samp_clus$clustering==1, 1]),
             mean(dens_samp[dens_samp_clus$clustering==1, 2]),
@@ -264,6 +268,11 @@ par(mfcol=c(1,2), mai = c(0, 0, 0, 0))
     plot(try, add=TRUE)
 
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
+<<<<<<< HEAD
     points(samppt2, pch=samppt2@data$cent)
 par(mfcol=c(1,1))
 
+=======
+    points(dens_samp, pch=dens_samp$cent)
+par(mfcol=c(1,1))
+>>>>>>> 7502478b0d540aca6bf81c14b7fd4c0d49f1c2d4
