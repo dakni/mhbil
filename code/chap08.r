@@ -107,8 +107,14 @@ dens_samp_clus <- pam(dens_samp2, 4, metric = "euclidean")
 dens_samp2 <- cbind(dens_samp2,  dens_samp_clus$clustering)
 names(dens_samp2)[names(dens_samp2) == 'dens_samp_clus$clustering'] <- 'clus'
 
+samppt <- SpatialPointsDataFrame(
+    coords = samppt@coords,
+    data = dens_samp2,
+    proj4string = samppt@proj4string
+)
+
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
-    points(dens_samp, pch=dens_samp2$clus)
+    points(samppt, pch=samppt@data$clus)
 
 clus1 <- c(mean(dens_samp[dens_samp_clus$clustering==1, 1]),
             mean(dens_samp[dens_samp_clus$clustering==1, 2]),
@@ -247,10 +253,16 @@ for(i in seq(along=(dens_samp$cent))) {
      dens_samp$cent[i] <- id
      }
 
+samppt2 <- SpatialPointsDataFrame(
+    coords = samppt@coords,
+    data = dens_samp,
+    proj4string = samppt@proj4string
+)
+
 par(mfcol=c(1,2), mai = c(0, 0, 0, 0))
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
     plot(try, add=TRUE)
 
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
-    points(dens_samp, pch=dens_samp$cent)
+    points(samppt2, pch=samppt2@data$cent)
 par(mfcol=c(1,1))
