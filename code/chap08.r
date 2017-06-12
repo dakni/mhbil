@@ -25,10 +25,7 @@
 
 # 0. Preparation ===============================
 #  working direktory
-wd <- "~/modproj_qaam"
-wd <- "/home/fon/daten/analyse/modproj_qaam"
-setwd(wd)
-load("4ws/ws07.rws")
+load("ws/ws07.rws")
 
 # 3. empirical models ===============================
 
@@ -59,9 +56,9 @@ par(mfcol=c(1,2))
     points(ppp_tum$x, ppp_tum$y, pch=17, cex=0.6,  col="grey")  
     points(ppp_meg$x, ppp_meg$y, pch=16, cex=0.4) 
 
-library("classInt")
-nb_meg <- classIntervals(dens_samp@data$meg, style =  "fisher", dataPrecision = NULL)  
-nb_tum <- classIntervals(dens_samp@data$tum, style = "fisher", dataPrecision = NULL)  
+library(classInt)
+nb_meg <- classIntervals(dens_samp$meg, style =  "fisher", dataPrecision = NULL)  
+nb_tum <- classIntervals(dens_samp$tum, style = "fisher", dataPrecision = NULL)  
 
     contour(sgdf_meg_dens, add=F, method = "edge", levels = nb_meg$brks, drawlabels = F)    
     contour(sgdf_tum_dens, add=T, method = "edge", levels  = nb_tum$brks, drawlabels = F, col="grey")  
@@ -86,39 +83,39 @@ par(mfcol=c(1,1))
 
 
 dens_samp2 <- dens_samp[,1:3]
-dens_samp2@data[,1] <- dens_samp2@data[,1]  / max(dens_samp2@data[,1])
-dens_samp2@data[,2] <- dens_samp2@data[,2]  / max(dens_samp2@data[,2])
-dens_samp2@data[,3] <- dens_samp2@data[,3]  / max(dens_samp2@data[,3])
+dens_samp2[,1] <- dens_samp2[,1]  / max(dens_samp2[,1], na.rm = TRUE)
+dens_samp2[,2] <- dens_samp2[,2]  / max(dens_samp2[,2], na.rm = TRUE)
+dens_samp2[,3] <- dens_samp2[,3]  / max(dens_samp2[,3], na.rm = TRUE)
 
-distances <- dist(dens_samp2@data, method = "euclidean")
+distances <- dist(dens_samp2, method = "euclidean")
 hc <- hclust(distances, method="centroid")
     plot(hc, labels=FALSE)
 
 library("cluster")
 widthssum <- c(
-    sum(pam(dens_samp2@data, 2, metric = "euclidean")$silinfo$clus.avg.widths),
-    sum(pam(dens_samp2@data, 3, metric = "euclidean")$silinfo$clus.avg.widths),
-    sum(pam(dens_samp2@data, 4, metric = "euclidean")$silinfo$clus.avg.widths),
-    sum(pam(dens_samp2@data, 5, metric = "euclidean")$silinfo$clus.avg.widths),
-    sum(pam(dens_samp2@data, 6, metric = "euclidean")$silinfo$clus.avg.widths),
-    sum(pam(dens_samp2@data, 7, metric = "euclidean")$silinfo$clus.avg.widths),
-    sum(pam(dens_samp2@data, 8, metric = "euclidean")$silinfo$clus.avg.widths),
-    sum(pam(dens_samp2@data, 9, metric = "euclidean")$silinfo$clus.avg.widths))
+    sum(pam(dens_samp2, 2, metric = "euclidean")$silinfo$clus.avg.widths),
+    sum(pam(dens_samp2, 3, metric = "euclidean")$silinfo$clus.avg.widths),
+    sum(pam(dens_samp2, 4, metric = "euclidean")$silinfo$clus.avg.widths),
+    sum(pam(dens_samp2, 5, metric = "euclidean")$silinfo$clus.avg.widths),
+    sum(pam(dens_samp2, 6, metric = "euclidean")$silinfo$clus.avg.widths),
+    sum(pam(dens_samp2, 7, metric = "euclidean")$silinfo$clus.avg.widths),
+    sum(pam(dens_samp2, 8, metric = "euclidean")$silinfo$clus.avg.widths),
+    sum(pam(dens_samp2, 9, metric = "euclidean")$silinfo$clus.avg.widths))
 plot(widthssum, type ="b", pch=16)
 
-dens_samp_clus <- pam(dens_samp2@data, 4, metric = "euclidean")
-dens_samp2@data <- cbind(dens_samp2@data,  dens_samp_clus$clustering)
+dens_samp_clus <- pam(dens_samp2, 4, metric = "euclidean")
+dens_samp2 <- cbind(dens_samp2,  dens_samp_clus$clustering)
 names(dens_samp2)[names(dens_samp2) == 'dens_samp_clus$clustering'] <- 'clus'
 
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
-    points(dens_samp, pch=dens_samp2@data$clus)
+    points(dens_samp, pch=dens_samp2$clus)
 
-clus1 <- c(mean(dens_samp@data[dens_samp_clus$clustering==1, 1]),
-            mean(dens_samp@data[dens_samp_clus$clustering==1, 2]),
-            mean(dens_samp@data[dens_samp_clus$clustering==1, 3]))
-clus2 <- c(mean(dens_samp@data[dens_samp_clus$clustering==2, 1]),
-           mean(dens_samp@data[dens_samp_clus$clustering==2, 2]),
-           mean(dens_samp@data[dens_samp_clus$clustering==2, 3]))
+clus1 <- c(mean(dens_samp[dens_samp_clus$clustering==1, 1]),
+            mean(dens_samp[dens_samp_clus$clustering==1, 2]),
+            mean(dens_samp[dens_samp_clus$clustering==1, 3]))
+clus2 <- c(mean(dens_samp[dens_samp_clus$clustering==2, 1]),
+           mean(dens_samp[dens_samp_clus$clustering==2, 2]),
+           mean(dens_samp[dens_samp_clus$clustering==2, 3]))
 clus1
 clus2
 
@@ -226,26 +223,28 @@ try <- deldir(maxima[,1],maxima[,2],plot=TRUE,wl='te')
 cent <- data.frame(cbind(id=seq(1:length(maxima[,1])), x=maxima[,1],y=maxima[,2],meg=0, tum=0))
 coordinates(cent)=~x+y
 proj4string(cent)  <- CRS(as.character(crs1))
-cent_meg  <- overlay(x=sgdf_meg_dens, y=cent)
-cent_tum  <- overlay(x=sgdf_tum_dens, y=cent)
-cent@data$meg <- cent_meg@data$v
-cent@data$tum <- cent_tum@data$v
-dens_samp@data <- cbind(dens_samp@data,cent=0)
+projection(sgdf_meg_dens) <- crs1
+projection(sgdf_tum_dens) <- crs1
+cent_meg  <- sp::over(cent, sgdf_meg_dens)
+cent_tum  <- sp::over(cent, sgdf_tum_dens)
+cent@data$meg <- cent_meg$v
+cent@data$tum <- cent_tum$v
+dens_samp <- cbind(dens_samp, cent=0)
 
-for(i in seq(along=(dens_samp@data$cent))) {
-     d1 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[1])^2 + (dens_samp@data$tum[i]  - cent@data$tum[1])^2)  
-     d2 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[2])^2 + (dens_samp@data$tum[i]  - cent@data$tum[2])^2) 
-     d3 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[3])^2 + (dens_samp@data$tum[i]  - cent@data$tum[3])^2) 
-     d4 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[4])^2 + (dens_samp@data$tum[i]  - cent@data$tum[4])^2) 
-     d5 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[5])^2 + (dens_samp@data$tum[i]  - cent@data$tum[5])^2) 
-     d6 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[6])^2 + (dens_samp@data$tum[i]  - cent@data$tum[6])^2) 
-     d7 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[7])^2 + (dens_samp@data$tum[i]  - cent@data$tum[7])^2) 
-     d8 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[8])^2 + (dens_samp@data$tum[i]  - cent@data$tum[8])^2) 
-     d9 <- sqrt((dens_samp@data$meg[i] - cent@data$meg[9])^2 + (dens_samp@data$tum[i]  - cent@data$tum[9])^2) 
+for(i in seq(along=(dens_samp$cent))) {
+     d1 <- sqrt((dens_samp$meg[i] - cent@data$meg[1])^2 + (dens_samp$tum[i]  - cent@data$tum[1])^2)  
+     d2 <- sqrt((dens_samp$meg[i] - cent@data$meg[2])^2 + (dens_samp$tum[i]  - cent@data$tum[2])^2) 
+     d3 <- sqrt((dens_samp$meg[i] - cent@data$meg[3])^2 + (dens_samp$tum[i]  - cent@data$tum[3])^2) 
+     d4 <- sqrt((dens_samp$meg[i] - cent@data$meg[4])^2 + (dens_samp$tum[i]  - cent@data$tum[4])^2) 
+     d5 <- sqrt((dens_samp$meg[i] - cent@data$meg[5])^2 + (dens_samp$tum[i]  - cent@data$tum[5])^2) 
+     d6 <- sqrt((dens_samp$meg[i] - cent@data$meg[6])^2 + (dens_samp$tum[i]  - cent@data$tum[6])^2) 
+     d7 <- sqrt((dens_samp$meg[i] - cent@data$meg[7])^2 + (dens_samp$tum[i]  - cent@data$tum[7])^2) 
+     d8 <- sqrt((dens_samp$meg[i] - cent@data$meg[8])^2 + (dens_samp$tum[i]  - cent@data$tum[8])^2) 
+     d9 <- sqrt((dens_samp$meg[i] - cent@data$meg[9])^2 + (dens_samp$tum[i]  - cent@data$tum[9])^2) 
      d <- c(d1,d2,d3,d4,d5,d6,d7,d8,d9)
      mindist <- min(d1,d2,d3,d4,d5,d6,d7,d8,d9)
      id  <- which(d == mindist)
-     dens_samp@data$cent[i] <- id
+     dens_samp$cent[i] <- id
      }
 
 par(mfcol=c(1,2), mai = c(0, 0, 0, 0))
@@ -253,10 +252,5 @@ par(mfcol=c(1,2), mai = c(0, 0, 0, 0))
     plot(try, add=TRUE)
 
     image(sgdf_srtm, col = gray.colors(20, start = 0.8, end = 0.2))
-    points(dens_samp, pch=dens_samp@data$cent)
+    points(dens_samp, pch=dens_samp$cent)
 par(mfcol=c(1,1))
-
-
-
-
-
