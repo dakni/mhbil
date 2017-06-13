@@ -10,7 +10,7 @@
 ##          Archaeological modelling
 ## Authors: Oliver Nakoinz & Daniel Knitter
 ## Version: 06
-## Date of last changes: 11.08.2015
+## Date of last changes: Di 13. Jun 14:43:56 CEST 2017
 ## Data: Megaliths, Bronze Age Barrows and Medieval villages
 ## Author of data: gshdl
 ## Purpose: didactic
